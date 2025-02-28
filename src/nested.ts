@@ -1,5 +1,6 @@
 import { Answer } from "./interfaces/answer";
 import { Question, QuestionType } from "./interfaces/question";
+import { duplicateQuestion } from "./objects";
 
 /**
  * Consumes an array of questions and returns a new array with only the questions
@@ -139,7 +140,11 @@ export function publishAll(questions: Question[]): Question[] {
  * are the same type. They can be any type, as long as they are all the SAME type.
  */
 export function sameType(questions: Question[]): boolean {
-    return false;
+    if (questions.length === 0) return true;
+
+    return questions.every(
+        (question: Question): boolean => question.type === questions[0].type,
+    );
 }
 
 /***
@@ -166,7 +171,9 @@ export function renameQuestionById(
     targetId: number,
     newName: string,
 ): Question[] {
-    return [];
+    return questions.map((question) =>
+        question.id === targetId ? { ...question, name: newName } : question,
+    );
 }
 
 /***
@@ -181,7 +188,19 @@ export function changeQuestionTypeById(
     targetId: number,
     newQuestionType: QuestionType,
 ): Question[] {
-    return [];
+    if (newQuestionType !== "multiple_choice_question") {
+        return questions.map((question) =>
+            question.id === targetId ?
+                { ...question, type: newQuestionType, options: [] }
+            :   question,
+        );
+    } else {
+        return questions.map((question) =>
+            question.id === targetId ?
+                { ...question, type: newQuestionType }
+            :   question,
+        );
+    }
 }
 
 /**
@@ -200,7 +219,21 @@ export function editOption(
     targetOptionIndex: number,
     newOption: string,
 ): Question[] {
-    return [];
+    return questions.map((question) =>
+        question.id === targetId ?
+            {
+                ...question,
+                options:
+                    targetOptionIndex === -1 ?
+                        [...question.options, newOption]
+                    :   [
+                            ...question.options.slice(0, targetOptionIndex),
+                            newOption,
+                            ...question.options.slice(targetOptionIndex + 1),
+                        ],
+            }
+        :   question,
+    );
 }
 
 /***
@@ -214,5 +247,5 @@ export function duplicateQuestionInArray(
     targetId: number,
     newId: number,
 ): Question[] {
-    return [];
+    return duplicateQuestion(newId, questions[targetId]);
 }
