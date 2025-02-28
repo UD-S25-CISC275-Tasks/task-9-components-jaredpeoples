@@ -1,6 +1,6 @@
 import { Answer } from "./interfaces/answer";
 import { Question, QuestionType } from "./interfaces/question";
-import { duplicateQuestion } from "./objects";
+import { duplicateQuestion, makeBlankQuestion } from "./objects";
 
 /**
  * Consumes an array of questions and returns a new array with only the questions
@@ -19,8 +19,12 @@ export function getPublishedQuestions(questions: Question[]): Question[] {
  */
 export function getNonEmptyQuestions(questions: Question[]): Question[] {
     return questions.filter(
-        (question: Question): boolean =>
-            question.body !== "" && question.options.length !== 0,
+        (question): boolean =>
+            !(
+                question.body.trim() === "" &&
+                question.expected.trim() === "" &&
+                question.options.length === 0
+            ),
     );
 }
 
@@ -67,8 +71,9 @@ export function sumPoints(questions: Question[]): number {
  * Consumes an array of questions and returns the sum total of the PUBLISHED questions.
  */
 export function sumPublishedPoints(questions: Question[]): number {
-    return questions.filter((question: Question): boolean => question.published)
-        .length;
+    return questions
+        .filter((question: Question): boolean => question.published)
+        .reduce((sum: number, question: Question) => sum + question.points, 0);
 }
 
 /***
@@ -158,7 +163,7 @@ export function addNewQuestion(
     name: string,
     type: QuestionType,
 ): Question[] {
-    return [];
+    return [...questions, makeBlankQuestion(id, name, type)];
 }
 
 /***
@@ -247,5 +252,14 @@ export function duplicateQuestionInArray(
     targetId: number,
     newId: number,
 ): Question[] {
-    return duplicateQuestion(newId, questions[targetId]);
+    const targetIndex = questions.findIndex(
+        (question) => question.id === targetId,
+    );
+    const targetQuestion = questions[targetIndex];
+    const duplicatedQuestion = duplicateQuestion(newId, targetQuestion);
+    return [
+        ...questions.slice(0, targetIndex + 1),
+        duplicatedQuestion,
+        ...questions.slice(targetIndex + 1),
+    ];
 }
