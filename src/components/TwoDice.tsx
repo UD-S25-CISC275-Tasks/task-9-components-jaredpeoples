@@ -12,15 +12,15 @@ export function d6(): number {
 }
 
 export function TwoDice(): React.JSX.Element {
-    let rollOne = d6();
-    let rollTwo;
+    // let rollOne = d6();
+    // let rollTwo;
 
-    do {
-        rollTwo = d6();
-    } while (rollOne === rollTwo);
+    // do {
+    //     rollTwo = d6();
+    // } while (rollOne === rollTwo);
 
-    const [diceOne, setDiceOne] = useState<number>(rollOne);
-    const [diceTwo, setDiceTwo] = useState<number>(rollTwo);
+    const [diceOne, setDiceOne] = useState<number>(1);
+    const [diceTwo, setDiceTwo] = useState<number>(2);
 
     function rerollOne() {
         setDiceOne(d6());
